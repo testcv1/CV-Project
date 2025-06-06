@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Improvement Advisor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/cv_chatbot.css">
+</head>
+<body>
+    <div class="chatbot-container">
+        <div class="chatbot-header">
+            <div class="chatbot-avatar">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div class="chatbot-title">
+                <h2>CV Improvement Advisor</h2>
+                <p>Upload your CV in PDF format for personalized improvement suggestions</p>
+            </div>
+        </div>
+        
+        <div class="chatbot-messages" id="chatbot-messages">
+            <div class="message bot-message">
+                <div class="message-content">
+                    <p>Welcome to your CV improvement advisor! I can help you:</p>
+                    <ul>
+                        <li>Analyze your current CV</li>
+                        <li>Identify strengths and weaknesses</li>
+                        <li>Provide specific improvement suggestions</li>
+                        <li>Give you an overall CV quality score</li>
+                    </ul>
+                    <p>Please upload your CV in PDF format to get started.</p>
+                    <div class="message-time">Just now</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chatbot-input-area">
+            <div class="file-upload-container">
+                <label class="file-upload-btn">
+                    <i class="fas fa-file-pdf"></i> Upload PDF CV
+                    <input type="file" id="cv-upload" accept=".pdf">
+                </label>
+                <div class="file-info" id="file-info">No file selected</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/cv_chatbot.js"></script>
+</body>
+</html>

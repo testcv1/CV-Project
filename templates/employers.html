@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employers - Amal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='employers.css') }}">
+</head>
+<body>
+    <header>
+        <div class="logo">
+      <img src="/static/logo.png" alt="Logo">
+    </div>
+    <nav>
+      <button onclick="location.href='{{ url_for('home') }}'" class="btn btn-primary">Home</button>
+      <button onclick="location.href='{{ url_for('blogs') }}'" class="btn btn-primary">Blog</button>
+      <button onclick="location.href='{{ url_for('resume') }}'" class="btn btn-primary">Build Your CV</button>
+      <button onclick="location.href='{{ url_for('employers') }}'" class="btn btn-primary">Employers</button>
+      <button onclick="location.href='{{ url_for('jobs') }}'">Jobs</button>
+      <div class="lang-switch">
+        <select id="lang-select" onchange="switchLanguage(this)">
+          <option value="en">English</option>
+          <option value="ar">عربي</option>
+        </select>
+      </div>
+    </nav>
+    </header>
+
+    <section class="employer-hero">
+        <h1>Hire the Best Talent</h1>
+        <p>Connect with qualified professionals ready to join your team</p>
+    </section>
+
+    <div class="employer-container">
+        <h2>Why Post Jobs on Amal?</h2>
+        
+        <div class="benefits">
+            <div class="benefit-card">
+                <h3><i class="fas fa-bolt"></i> Fast Hiring</h3>
+                <p>Our platform helps you find qualified candidates quickly and efficiently.</p>
+            </div>
+            <div class="benefit-card">
+                <h3><i class="fas fa-users"></i> Quality Candidates</h3>
+                <p>Access to professionals with verified skills and experience.</p>
+            </div>
+            <div class="benefit-card">
+                <h3><i class="fas fa-chart-line"></i> Targeted Matching</h3>
+                <p>Our algorithm matches you with candidates that fit your requirements.</p>
+            </div>
+        </div>
+
+        <div class="employer-options">
+            <a href="{{ url_for('employer_login') }}" class="employer-btn">
+                <i class="fas fa-sign-in-alt"></i> Employer Login
+            </a>
+            <a href="{{ url_for('employer_register') }}" class="employer-btn">
+                <i class="fas fa-user-plus"></i> Register as Employer
+            </a>
+        </div>
+    </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-links">
+      <a href="/about" class="footer-link">About Us</a>
+      <a href="/contact" class="footer-link">Contact</a>
+      <a href="/privacy" class="footer-link">Privacy Policy</a>
+      <a href="/terms" class="footer-link">Terms of Service</a>
+      <a href="/blog" class="footer-link">Blog</a>
+    </div>
+    
+    <div class="social-icons">
+      <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+      <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+      <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+      <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+    </div>
+    
+    <p class="copyright">© 2023 Amal. All rights reserved.</p>
+  </footer>
+
+  <!-- Google Translate element off-screen -->
+  <div id="google_translate_element" style="opacity: 0; position: absolute; left: -9999px;"></div>
+  <script src="/static/js/language.js"></script>
+</body>
+</html>

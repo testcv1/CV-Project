@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google" content="notranslate">
+  <meta http-equiv="Content-Language" content="en">
+  <link rel="stylesheet" href="{{ url_for('static', filename='resume_style.css') }}">
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <img src="/static/logo.png" alt="Amal Logo">
+      <h2>Amal</h2>
+    </div>
+    <nav>
+      <button onclick="location.href='/home'">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+      </button>
+      <button onclick="location.href='/jobs'">
+        <i class="fas fa-briefcase"></i>
+        <span>Jobs</span>
+      </button>
+      <button onclick="location.href='/blogs'">
+        <i class="fas fa-blog"></i>
+        <span>Blog</span>
+      </button>
+      <button class="active-nav-btn" onclick="location.href='/resume'">
+        <i class="fas fa-file-alt"></i>
+        <span>Resume</span>
+      </button>
+      <button onclick="location.href='/logout'">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </button>
+    </nav>
+  </header>
+
+  <div class="resume-container">
+    <div class="hero-section">
+      <h1>Craft Your Perfect Resume</h1>
+      <p>Get expert guidance from our AI assistant to create, improve, or tailor your resume for your dream job</p>
+      <div class="hero-cta">
+        <a href="/manual_resume" class="option-btn secondary-btn">
+          <i class="fas fa-edit"></i> Create Your Resumse
+        </a>
+        <button onclick="location.href='/cv_chatbot'" class="option-btn primary-btn">
+          <i class="fas fa-magic"></i> Start with AI (Analyze and improve)
+        </button>
+      </div>
+    </div>
+
+    <div class="options-grid">
+      <div class="option-card">
+        <div class="option-icon">
+          <i class="fas fa-file-alt"></i>
+        </div>
+        <h3 class="option-title">Resume Builder</h3>
+        <p class="option-desc">Fill out a form with all your details to create a professional resume step by step with full control over every section.</p>
+        <a href="/manual_resume" class="option-btn primary-btn">
+          <i class="fas fa-edit"></i> Create Resume
+        </a>
+      </div>
+      <div class="option-card">
+        <div class="option-icon">
+          <i class="fas fa-file-upload"></i>
+        </div>
+        <h3 class="option-title">Improve My CV</h3>
+        <p class="option-desc">Upload your existing resume for expert feedback and targeted improvements to make it stand out to recruiters.</p>
+        <a href="/cv_chatbot" class="option-btn secondary-btn">
+          <i class="fas fa-upload"></i> Analyze Resume
+        </a>
+      </div>
+    </div>
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const chatInput = document.getElementById('chat-input');
+  const sendBtn = document.getElementById('send-btn');
+  const chatMessages = document.getElementById('chatbot-messages');
+  
+  // Auto-resize textarea
+  function adjustTextareaHeight() {
+    chatInput.style.height = 'auto';
+    chatInput.style.height = (chatInput.scrollHeight) + 'px';
+  }
+  
+  chatInput.addEventListener('input', adjustTextareaHeight);
+  adjustTextareaHeight();
+  
+  // Add message to chat
+  function addMessage(sender, text) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}-message`;
+    
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content';
+    
+    // Format lists and paragraphs
+    if (text.includes('\n- ')) {
+      const parts = text.split('\n- ');
+      contentDiv.innerHTML = `<p>${parts[0]}</p><ul>${
+        parts.slice(1).map(item => `<li>${item}</li>`).join('')
+      }</ul>`;
+    } else {
+      contentDiv.innerHTML = `<p>${text}</p>`;
+    }
+    
+    messageDiv.appendChild(contentDiv);
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+  
+  // Create typing indicator
+  function showTypingIndicator() {
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'message bot-message';
+    
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content typing-indicator';
+    
+    for (let i = 0; i < 3; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'typing-dot';
+      contentDiv.appendChild(dot);
+    }
+    
+    typingDiv.appendChild(contentDiv);
+    chatMessages.appendChild(typingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    return typingDiv;
+  }
+  
+  // Handle sending messages
+  function sendMessage() {
+    const message = chatInput.value.trim();
+    if (message) {
+      addMessage('user', message);
+      chatInput.value = '';
+      adjustTextareaHeight();
+      
+      // Check if user wants to create a resume
+      if (message.toLowerCase().includes('create') || 
+          message.toLowerCase().includes('resume') ||
+          message.toLowerCase().includes('make') ||
+          message.toLowerCase().includes('build')) {
+        addMessage('bot', "I'll redirect you to our resume builder where you can create your resume step by step.");
+        setTimeout(() => {
+          window.location.href = '/manual_resume';
+        }, 1500);
+        return;
+      }
+      
+      getBotResponse(message);
+    }
+  }
+  
+  // Get bot response
+  function getBotResponse(userInput) {
+    const typingIndicator = showTypingIndicator();
+    
+    // Simple local responses for resume-related questions
+    setTimeout(() => {
+      // Remove typing indicator
+      chatMessages.removeChild(typingIndicator);
+      
+      const responses = [
+        "For work experience, use bullet points starting with action verbs like 'Developed', 'Managed', or 'Increased'.",
+        "Keep your resume to 1-2 pages maximum, focusing on relevant experience.",
+        "Include skills that match the job description, especially technical ones.",
+        "Quantify achievements where possible (e.g., 'Increased sales by 30% in Q3').",
+        "Use a clean, professional format with consistent formatting throughout.",
+        "Tailor your resume for each job application by matching keywords from the job description.",
+        "List your most recent experience first, with dates for each position.",
+        "Include relevant education, certifications, and professional development.",
+        "Consider adding a skills section with both hard and soft skills.",
+        "Proofread carefully for spelling and grammar errors.",
+        "Use a professional email address and include your LinkedIn profile if available."
+      ];
+      
+      // Check for specific questions
+      if (userInput.toLowerCase().includes('length')) {
+        addMessage('bot', "A standard resume should be 1-2 pages. Recent graduates can often use 1 page, while experienced professionals may need 2 pages.");
+      } 
+      else if (userInput.toLowerCase().includes('template')) {
+        addMessage('bot', "We have several templates available in our resume builder. Click the 'Create Resume' button below to see them and choose one that fits your style.");
+        const button = document.createElement('button');
+        button.className = 'option-btn primary-btn';
+        button.style.marginTop = '1rem';
+        button.innerHTML = '<i class="fas fa-file-alt"></i> Create Resume';
+        button.onclick = function() { window.location.href = '/manual_resume'; };
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message bot-message';
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        contentDiv.appendChild(button);
+        messageDiv.appendChild(contentDiv);
+        chatMessages.appendChild(messageDiv);
+      }
+      else if (userInput.toLowerCase().includes('skill') || userInput.toLowerCase().includes('include')) {
+        addMessage('bot', "You should include skills that are relevant to the job you're applying for. Technical skills (like software proficiency) and soft skills (like communication) are both important. Our resume builder will help you organize these effectively.");
+      }
+      else {
+        // Random response for general questions
+        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+        addMessage('bot', randomResponse);
+        
+        // Add a prompt to create resume
+        setTimeout(() => {
+          addMessage('bot', "Ready to create your resume now?");
+          const button = document.createElement('button');
+          button.className = 'option-btn primary-btn';
+          button.style.marginTop = '1rem';
+          button.innerHTML = '<i class="fas fa-file-alt"></i> Create Resume';
+          button.onclick = function() { window.location.href = '/manual_resume'; };
+          
+          const messageDiv = document.createElement('div');
+          messageDiv.className = 'message bot-message';
+          const contentDiv = document.createElement('div');
+          contentDiv.className = 'message-content';
+          contentDiv.appendChild(button);
+          messageDiv.appendChild(contentDiv);
+          chatMessages.appendChild(messageDiv);
+        }, 500);
+      }
+    }, 1000);
+  }
+  
+  // Event listeners for sending messages
+  sendBtn.addEventListener('click', sendMessage);
+  chatInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+});
+</script>
+</body>
+</html>

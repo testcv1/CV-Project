@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google" content="notranslate">
+  <meta http-equiv="Content-Language" content="en">
+  <title>Jobs | Amal</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='jobs.css') }}">
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <img src="/static/logo.png" alt="Logo">
+      <h2>Amal Jobs</h2>
+    </div>
+    <nav>
+      <button onclick="location.href='/home'">Home</button>
+      <button onclick="location.href='{{ url_for('blogs') }}'" class="btn btn-primary">Blog</button>
+      <button onclick="location.href='{{ url_for('resume') }}'" class="btn btn-primary">Build Your CV</button>
+      <button onclick="location.href='{{ url_for('employers') }}'" class="btn btn-primary">Employers</button>
+      <div class="lang-switch">
+        <select id="lang-select" onchange="switchLanguage(this)">
+          <option value="en">English</option>
+          <option value="ar">عربي</option>
+        </select>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="jobs-search">
+      <form method="GET" action="{{ url_for('jobs') }}" class="search-container">
+          <input type="text" class="search-input" name="search" placeholder="Job title, keywords, or company"
+                value="{{ current_filters.get('search', '') }}">
+          <input type="text" class="search-input" name="location" placeholder="Location"
+                value="{{ current_filters.get('location', '') }}">
+          <button type="submit" class="search-btn">Search Jobs</button>
+      </form>
+    </section>
+
+    <!-- Filters Section -->
+    <section class="filters">
+      <form method="GET" action="{{ url_for('jobs') }}" class="filter-container">
+          <input type="hidden" name="search" value="{{ current_filters.get('search', '') }}">
+          
+          <!-- Location Filters -->
+          <select name="country" class="filter-select" onchange="this.form.submit()">
+              <option value="">All Countries/Regions</option>
+              {% for country in countries %}
+                  <option value="{{ country }}" {% if current_filters.get('country') == country %}selected{% endif %}>{{ country }}</option>
+              {% endfor %}
+          </select>
+          
+          <select name="city" class="filter-select" onchange="this.form.submit()">
+              <option value="">All Cities</option>
+              {% for city in cities %}
+                  <option value="{{ city }}" {% if current_filters.get('city') == city %}selected{% endif %}>{{ city }}</option>
+              {% endfor %}
+          </select>
+          
+          <!-- Job Type Filters -->
+          <select name="job_type" class="filter-select" onchange="this.form.submit()">
+              <option value="">All Job Types</option>
+              <option value="Full-time" {% if current_filters.get('job_type') == 'Full-time' %}selected{% endif %}>Full-time</option>
+              <option value="Part-time" {% if current_filters.get('job_type') == 'Part-time' %}selected{% endif %}>Part-time</option>
+              <option value="Remote" {% if current_filters.get('job_type') == 'Remote' %}selected{% endif %}>Remote</option>
+              <option value="Temporary" {% if current_filters.get('job_type') == 'Temporary' %}selected{% endif %}>Temporary</option>
+              <option value="Internship" {% if current_filters.get('job_type') == 'Internship' %}selected{% endif %}>Internship</option>
+              <option value="Contract" {% if current_filters.get('job_type') == 'Contract' %}selected{% endif %}>Contract</option>
+          </select>
+          
+          <!-- Salary Range Filter -->
+          <select name="salary_range" class="filter-select" onchange="this.form.submit()">
+              <option value="">All Salary Ranges</option>
+              <option value="0-30000" {% if current_filters.get('salary_range') == '0-30000' %}selected{% endif %}>$0 - $30k</option>
+              <option value="30000-60000" {% if current_filters.get('salary_range') == '30000-60000' %}selected{% endif %}>$30k - $60k</option>
+              <option value="60000-90000" {% if current_filters.get('salary_range') == '60000-90000' %}selected{% endif %}>$60k - $90k</option>
+              <option value="90000+" {% if current_filters.get('salary_range') == '90000+' %}selected{% endif %}>$90k+</option>
+          </select>
+          
+          <!-- Other Filters -->
+          <select name="category" class="filter-select" onchange="this.form.submit()">
+              <option value="">All Industries</option>
+              <option value="Technology" {% if current_filters.get('category') == 'Technology' %}selected{% endif %}>Technology</option>
+              <option value="Healthcare" {% if current_filters.get('category') == 'Healthcare' %}selected{% endif %}>Healthcare</option>
+              <option value="Finance" {% if current_filters.get('category') == 'Finance' %}selected{% endif %}>Finance</option>
+              <option value="Education" {% if current_filters.get('category') == 'Education' %}selected{% endif %}>Education</option>
+              <option value="Retail" {% if current_filters.get('category') == 'Retail' %}selected{% endif %}>Retail</option>
+          </select>
+          
+          <select name="experience" class="filter-select" onchange="this.form.submit()">
+              <option value="">All Experience Levels</option>
+              <option value="Entry Level" {% if current_filters.get('experience') == 'Entry Level' %}selected{% endif %}>Entry Level</option>
+              <option value="Mid Level" {% if current_filters.get('experience') == 'Mid Level' %}selected{% endif %}>Mid Level</option>
+              <option value="Senior Level" {% if current_filters.get('experience') == 'Senior Level' %}selected{% endif %}>Senior Level</option>
+          </select>
+      </form>
+    </section>
+
+    <section class="jobs-listing">
+      <div class="jobs-count">
+        {% if jobs %}
+          <h3>{{ jobs|length }} Jobs Found</h3>
+        {% endif %}
+      </div>
+      
+      <div class="jobs-container">
+        {% for job in jobs %}
+        <div class="job-card">
+          <div class="job-card-header">
+            <div>
+              <h3 class="job-title">{{ job.title }}</h3>
+              <p class="job-company">{{ job.company_name }}</p>
+            </div>
+            <a href="{{ url_for('job_detail', job_id=job.id) }}" class="view-btn">
+              <i class="fas fa-eye"></i> View Job
+            </a>
+          </div>
+          
+          <div class="job-meta">
+            <span class="job-meta-item"><i class="fas fa-map-marker-alt"></i> {{ job.city }}, {{ job.country }}</span>
+            <span class="job-meta-item"><i class="fas fa-clock"></i> {{ job.job_type }}</span>
+            <span class="job-meta-item"><i class="fas fa-money-bill-wave"></i> {{ job.salary }}</span>
+            <span class="job-meta-item"><i class="fas fa-calendar-alt"></i> Posted: {{ job.posted_date.strftime('%b %d, %Y') }}</span>
+          </div>
+          
+          <div class="job-description">
+            {{ job.description|truncate(200) }}
+          </div>
+          
+          {% if job.skills %}
+          <div class="job-skills">
+            {% for skill in job.skills.split(',') %}
+              <span class="skill-tag">{{ skill.strip() }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+        {% else %}
+        <div class="no-jobs">
+          <img src="/static/no-jobs.svg" alt="No jobs found" class="no-jobs-img">
+          <h3>No jobs found matching your criteria</h3>
+          <p>Try adjusting your search filters or search for different keywords</p>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Pagination -->
+      {% if jobs and jobs|length > 0 %}
+      <div class="pagination">
+        <button class="page-btn"><i class="fas fa-chevron-left"></i></button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <button class="page-btn">4</button>
+        <button class="page-btn">5</button>
+        <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+      </div>
+      {% endif %}
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <div class="footer-links">
+        <a href="/about">About Us</a>
+        <a href="/contact">Contact</a>
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/terms">Terms of Service</a>
+        <a href="/blog">Blog</a>
+      </div>
+      
+      <div class="social-icons">
+        <a href="#"><i class="fab fa-facebook-f"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+      </div>
+      
+      <p class="copyright">© 2023 Amal. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <div id="google_translate_element" style="opacity: 0; position: absolute; left: -9999px;"></div>
+  <script src="/static/js/language.js"></script>
+</body>
+</html>

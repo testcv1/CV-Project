@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google" content="notranslate">
+  <meta http-equiv="Content-Language" content="en">
+  <title>Blogs | Amal</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='blogs_style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="logo">
+      <img src="/static/logo.png" alt="Logo">
+    </div>
+    <nav>
+      <button onclick="location.href='/home'">Back to Home</button>
+      <div class="lang-switch">
+        <select id="lang-select" onchange="switchLanguage(this)">
+          <option value="en">English</option>
+          <option value="ar">عربي</option>
+        </select>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="blogs-hero">
+    <h1>Latest Insights</h1>
+    <p>Discover career tips, industry trends, and success stories</p>
+  </section>
+<!-- Blog Categories -->
+<div class="blog-categories">
+    <button class="category-btn active" data-category="all">All</button>
+    {% for category in categories %}
+    <button class="category-btn" data-category="{{ category.lower().replace(' ', '-') }}">{{ category }}</button>
+    {% endfor %}
+</div>
+
+<!-- Blogs Grid -->
+<div class="blogs-container">
+    {% if blogs %}
+        {% for blog in blogs %}
+            <div class="blog-card" data-category="{{ blog.category.lower().replace(' ', '-') }}">
+                {% if blog.image_url %}
+                    <img src="{{ blog.image_url }}" alt="{{ blog.title }}">
+                {% else %}
+                    <img src="/static/default-blog-image.jpg" alt="Default blog image">
+                {% endif %}
+                <div class="blog-content">
+                    <span class="blog-category">{{ blog.category }}</span>
+                    <h3>{{ blog.title }}</h3>
+                    <p>{{ blog.summary }}</p>
+                    <a href="{{ url_for('view_blog', blog_id=blog.id) }}" class="read-more">Read More →</a>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p style="grid-column: 1/-1; text-align: center;">No blogs found yet. Check back later!</p>
+    {% endif %}
+</div>
+  <!-- Footer -->
+  <footer>
+    <div class="footer-links">
+      <a href="/about" class="footer-link">About Us</a>
+      <a href="/contact" class="footer-link">Contact</a>
+      <a href="/privacy" class="footer-link">Privacy Policy</a>
+      <a href="/terms" class="footer-link">Terms of Service</a>
+      <a href="/blogs" class="footer-link">Blog</a>
+    </div>
+    
+    <div class="social-icons">
+      <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+      <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+      <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+      <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+    </div>
+    
+    <p class="copyright">© 2023 Amal. All rights reserved.</p>
+  </footer>
+
+  <!-- Google Translate Script -->
+<div id="google_translate_element" style="opacity: 0; position: absolute; left: -9999px;"></div>
+<script src="/static/js/language.js"></script>
+</body>
+</html>

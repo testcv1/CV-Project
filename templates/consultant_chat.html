@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Consultants | Amal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #493D9E;
+            --secondary-color: #6C63FF;
+            --accent-color: #1F7D53;
+            --light-bg: #f8f9fa;
+            --dark-bg: #2c3e50;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--light-bg);
+            color: #333;
+        }
+        
+        /* Header Styles */
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 2.5rem 0;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(73, 61, 158, 0.15);
+        }
+        
+        .page-header h1 {
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+        
+        .page-header .lead {
+            opacity: 0.9;
+        }
+        
+        /* Main Content Styles */
+        .main-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.75rem;
+        }
+        
+        .section-title:after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--accent-color);
+            border-radius: 2px;
+        }
+        
+        /* Consultant Cards */
+        .consultant-card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(73, 61, 158, 0.1);
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            background: white;
+        }
+        
+        .consultant-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(73, 61, 158, 0.15);
+        }
+        
+        .consultant-img {
+            height: 120px;
+            background-color: var(--light-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+        }
+        
+        .consultant-img i {
+            font-size: 3rem;
+        }
+        
+        .consultant-body {
+            padding: 1.5rem;
+        }
+        
+        .consultant-name {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .specialization {
+            display: inline-block;
+            background-color: rgba(73, 61, 158, 0.1);
+            color: var(--primary-color);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+        
+        .consultant-email {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 1.5rem;
+            word-break: break-all;
+        }
+        
+        .contact-btn {
+            background: var(--primary-color);
+            color: white;
+            border-radius: 6px;
+            padding: 0.5rem 1.25rem;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .contact-btn:hover {
+            background: #3a2f7d;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(73, 61, 158, 0.2);
+        }
+        
+        /* Guidelines Section */
+        .guidelines-card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(73, 61, 158, 0.1);
+            overflow: hidden;
+        }
+        
+        .guidelines-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+        }
+        
+        .guidelines-body {
+            padding: 1.5rem;
+        }
+        
+        .guidelines-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .guidelines-list li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .guidelines-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .guidelines-list i {
+            color: var(--accent-color);
+            margin-right: 0.75rem;
+            margin-top: 0.2rem;
+        }
+        
+        /* Session Options */
+        .session-options {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin: 1.5rem 0;
+        }
+        
+        .option-card {
+            flex: 1;
+            min-width: 250px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .option-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .option-header {
+            padding: 0.75rem 1rem;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .bg-google {
+            background: #4285F4;
+        }
+        
+        .bg-zoom {
+            background: #2D8CFF;
+        }
+        
+        .option-body {
+            padding: 1.25rem;
+            background: white;
+        }
+        
+        .btn-option {
+            border: none;
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .btn-google {
+            background: #4285F4;
+            color: white;
+        }
+        
+        .btn-zoom {
+            background: #2D8CFF;
+            color: white;
+        }
+        
+        .btn-google:hover, .btn-zoom:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        /* Footer */
+        .footer {
+            background: var(--dark-bg);
+            color: white;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+        
+        .footer h5 {
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .footer p {
+            opacity: 0.8;
+        }
+        
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 1.5rem 0;
+                text-align: center;
+            }
+            
+            .consultant-card {
+                margin-bottom: 1.5rem;
+            }
+            
+            .option-card {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="page-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1><i class="fas fa-user-tie me-2"></i> Career Consultants</h1>
+                    <p class="lead mb-0">Connect with industry experts for personalized career guidance</p>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <a href="{{ url_for('interview_prep') }}" class="btn btn-light btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="main-container">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2 class="section-title"><i class="fas fa-envelope me-2"></i> Contact via Email</h2>
+                    <p>Select a consultant below to send them an email directly through your mail client.</p>
+                </div>
+            </div>
+
+            <div class="row">
+                {% for consultant in consultants %}
+                <div class="col-lg-4 col-md-6">
+                    <div class="consultant-card">
+                        <div class="consultant-img">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <div class="consultant-body">
+                            <h3 class="consultant-name">{{ consultant.name }}</h3>
+                            <span class="specialization">{{ consultant.specialization }}</span>
+                            <div class="consultant-email">
+                                <i class="fas fa-envelope me-1"></i> {{ consultant.email }}
+                            </div>
+                            <a href="{{ url_for('contact_consultant', consultant_id=consultant.id) }}" 
+                               class="contact-btn" 
+                               target="_blank">
+                                <i class="fas fa-paper-plane me-1"></i> Contact via Email
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Guidelines Section -->
+        <div class="guidelines-card mb-4">
+            <div class="guidelines-header">
+                <h4><i class="fas fa-info-circle me-2"></i> Consultation Guidelines</h4>
+            </div>
+            <div class="guidelines-body">
+                <h5>Professional Communication Protocol:</h5>
+                <ul class="guidelines-list">
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <div>All communication should be professional and respectful</div>
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <div>Consultants typically respond within 2 business days</div>
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <div>Prepare specific questions before your session</div>
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <div>Include your availability when requesting meetings</div>
+                    </li>
+                </ul>
+                
+                <h5 class="mt-4">Online Session Options:</h5>
+                <div class="session-options">
+                    <div class="option-card">
+                        <div class="option-header bg-google">
+                            <i class="fab fa-google me-2"></i> Google Meet
+                        </div>
+                        <div class="option-body">
+                            <p class="mb-2">Click below to create a new meeting link:</p>
+                            <a href="https://meet.google.com/new" class="btn btn-option btn-google" target="_blank">
+                                <i class="fas fa-video me-1"></i> Create Meeting
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="option-card">
+                        <div class="option-header bg-zoom">
+                            <i class="fab fa-zoom me-2"></i> Zoom
+                        </div>
+                        <div class="option-body">
+                            <p class="mb-2">Click below to start a Zoom meeting:</p>
+                            <a href="https://zoom.us/start/videomeeting" class="btn btn-option btn-zoom" target="_blank">
+                                <i class="fas fa-video me-1"></i> Start Zoom
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-primary mt-4">
+                    <i class="fas fa-lightbulb me-2"></i>
+                    <strong>Pro Tip:</strong> When emailing consultants, include:
+                    <ul class="mt-2 mb-0">
+                        <li>Your preferred meeting platform</li>
+                        <li>Your available time slots (include timezone)</li>
+                        <li>Specific topics you want to discuss</li>
+                        <li>Any relevant documents (resume, portfolio, etc.)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Amal Career Services</h5>
+                    <p>Empowering your professional journey with expert guidance</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">&copy; 2023 Amal. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

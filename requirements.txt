@@ -1,0 +1,8 @@
+pandas
+werkzeug
+flask
+flask_mail
+pdfplumber
+python-docx
+requests
+weasyprint
