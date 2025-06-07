@@ -2033,6 +2033,3 @@ def view_candidate_profile(user_id):
     finally:
         conn_jobs.close()
         conn_users.close()
-
-if __name__ == "__main__":
-    app.run(debug=True,host='127.0.0.1',port=8000,nthreads=6)
