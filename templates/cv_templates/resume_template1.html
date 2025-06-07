@@ -4,457 +4,293 @@
     <meta charset="UTF-8">
     <title>{{ name }} - Resume</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         body {
-            font-family: 'Arial', sans-serif;
-            line-height: 1.6;
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+            line-height: 1.4;
             color: #333;
-            background-color: #f8f9fa;
-            padding: 40px 20px;
+            margin: 0;
+            padding: 20px;
         }
         
         .resume-container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(44, 62, 80, 0.15);
-            border: 1px solid #e8e9ea;
+            width: 100%;
+            max-width: 210mm;
         }
         
-        .header-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            padding: 40px;
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            border-bottom: 1px solid #e8e9ea;
+        /* Header Section */
+        .header {
+            border-bottom: 3px solid #2c3e50;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
             position: relative;
-        }
-        
-        .header-section::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #2c3e50, #3498db, #2c3e50);
+            height: 140px;
         }
         
         .header-left {
-            flex: 1;
-            padding-right: 40px;
+            float: left;
+            width: 65%;
+            padding-right: 30px;
         }
         
         .header-right {
-            flex-shrink: 0;
+            float: right;
+            width: 35%;
+            text-align: center;
         }
-        
-        {% if photo_url %}
-        .profile-photo {
-            width: 140px;
-            height: 140px;
-            border-radius: 50%;
-            object-fit: cover;
-            object-position: center;
-            border: 4px solid #2c3e50;
-            box-shadow: 0 6px 20px rgba(44, 62, 80, 0.3);
-            background-color: #f8f9fa;
-            transition: all 0.3s ease;
-        }
-        
-        .profile-photo:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 25px rgba(44, 62, 80, 0.4);
-        }
-        {% endif %}
         
         .name {
+            font-size: 32px;
+            font-weight: bold;
             color: #2c3e50;
-            font-size: 2.2rem;
-            font-weight: 400;
-            margin-bottom: 15px;
-            letter-spacing: 0.5px;
+            margin: 0 0 15px 0;
+            line-height: 1.1;
         }
         
         .contact-info {
-            font-size: 1rem;
-            color: #666;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
+            font-size: 16px;
+            color: #555;
+            line-height: 1.8;
         }
         
-        .contact-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .contact-line {
+            margin-bottom: 8px;
+            display: block;
         }
         
-        .contact-item::before {
-            content: '|';
+        .contact-line strong {
+            min-width: 70px;
+            display: inline-block;
             color: #2c3e50;
-            font-weight: bold;
         }
         
-        .contact-item:first-child::before {
-            content: '';
+        .profile-photo {
+            width: 120px;
+            height: 120px;
+            border: 4px solid #2c3e50;
+            border-radius: 60px;
+            object-fit: cover;
+            display: block;
+            margin: 0 auto;
         }
         
-        .divider-line {
-            height: 3px;
-            background: linear-gradient(90deg, #2c3e50, #3498db, #2c3e50);
-            margin: 30px 40px;
-            border-radius: 2px;
+        .clearfix::after {
+            content: "";
+            display: table;
+            clear: both;
         }
         
-        .main-content {
-            padding: 0 40px 40px;
-        }
-        
+        /* Sections */
         .section {
-            margin-bottom: 35px;
+            margin-bottom: 25px;
+            clear: both;
         }
         
         .section-title {
+            font-size: 16px;
+            font-weight: bold;
             color: #2c3e50;
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 20px;
             border-bottom: 2px solid #2c3e50;
-            padding-bottom: 8px;
-            position: relative;
+            padding-bottom: 3px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
-        .section-title::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 30%;
-            height: 2px;
-            background: #3498db;
-        }
-        
-        .education-item,
-        .experience-item {
-            margin-bottom: 25px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border-left: 5px solid #2c3e50;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-        
-        .education-item::before,
-        .experience-item::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, rgba(44, 62, 80, 0.1), transparent);
-            border-radius: 0 8px 0 20px;
-        }
-        
-        .education-item:hover,
-        .experience-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(44, 62, 80, 0.15);
-            border-left-color: #3498db;
+        /* Education & Experience Items */
+        .item {
+            margin-bottom: 18px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            background-color: #fafafa;
+            border-radius: 4px;
         }
         
         .item-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-            gap: 10px;
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 8px;
+        }
+        
+        .item-left {
+            width: 70%;
+            vertical-align: top;
+        }
+        
+        .item-right {
+            width: 30%;
+            vertical-align: top;
+            text-align: right;
         }
         
         .item-title {
+            font-size: 13px;
             font-weight: bold;
             color: #2c3e50;
-            font-size: 1.1rem;
-            flex: 1;
-            min-width: 250px;
-        }
-        
-        .item-date {
-            color: #666;
-            font-style: italic;
-            white-space: nowrap;
-            background: #e8e9ea;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.9rem;
+            margin-bottom: 3px;
         }
         
         .item-subtitle {
-            color: #555;
-            margin-bottom: 8px;
-            font-weight: 500;
+            font-size: 12px;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 3px;
         }
         
-        .item-description {
-            color: #444;
-            line-height: 1.6;
-            margin-top: 10px;
+        .item-date {
+            font-size: 10px;
+            color: #777;
+            background-color: #e8e8e8;
+            padding: 4px 8px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
         }
         
         .grade {
+            font-size: 11px;
             color: #2c3e50;
             font-weight: bold;
-            margin-bottom: 8px;
-            font-size: 0.95rem;
         }
         
-        .skills-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 12px;
+        .item-description {
+            margin-top: 8px;
+            font-size: 11px;
+            line-height: 1.5;
+            color: #444;
+        }
+        
+        /* Skills Section */
+        .skills-grid {
+            width: 100%;
         }
         
         .skill-item {
-            background: linear-gradient(135deg, #2c3e50, #34495e);
+            display: inline-block;
+            background-color: #2c3e50;
             color: white;
-            padding: 12px 16px;
-            border-radius: 25px;
-            text-align: center;
-            font-weight: 500;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
+            padding: 6px 12px;
+            margin: 2px 4px 2px 0;
+            font-size: 10px;
+            font-weight: bold;
+            border: 1px solid #2c3e50;
+            border-radius: 3px;
         }
         
-        .skill-item::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.6s ease;
-        }
-        
-        .skill-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(44, 62, 80, 0.4);
-            background: linear-gradient(135deg, #3498db, #2980b9);
-        }
-        
-        .skill-item:hover::before {
-            left: 100%;
-        }
-        
-        .certifications-container {
+        /* Certifications */
+        .cert-list {
             list-style: none;
+            padding: 0;
+            margin: 0;
         }
         
-        .certification-item {
-            background: #f8f9fa;
-            padding: 15px 20px;
-            margin-bottom: 12px;
-            border-radius: 6px;
+        .cert-item {
+            background-color: #f8f8f8;
             border-left: 4px solid #27ae60;
-            position: relative;
-            transition: all 0.3s ease;
-            padding-left: 35px;
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            font-size: 11px;
+            border-radius: 0 3px 3px 0;
         }
         
-        .certification-item::before {
-            content: '●';
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
+        .cert-bullet {
             color: #27ae60;
-            font-size: 12px;
-        }
-        
-        .certification-item:hover {
-            background: #e8f5e8;
-            transform: translateX(8px);
-            border-left-color: #2ecc71;
-        }
-        
-        @media (max-width: 768px) {
-            body {
-                padding: 20px 10px;
-            }
-            
-            .resume-container {
-                border-radius: 8px;
-            }
-            
-            .header-section {
-                flex-direction: column;
-                text-align: center;
-                gap: 20px;
-                padding: 30px 20px;
-            }
-            
-            .header-left {
-                padding-right: 0;
-            }
-            
-            .name {
-                font-size: 1.8rem;
-            }
-            
-            .contact-info {
-                justify-content: center;
-                flex-direction: column;
-                gap: 8px;
-            }
-            
-            .divider-line {
-                margin: 20px;
-            }
-            
-            .main-content {
-                padding: 0 20px 30px;
-            }
-            
-            .item-header {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .item-title {
-                min-width: auto;
-                margin-bottom: 8px;
-            }
-            
-            .item-date {
-                align-self: flex-start;
-            }
-            
-            .skills-container {
-                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            }
-        }
-        
-        @media print {
-            body {
-                padding: 20px;
-                background: white;
-            }
-            
-            .resume-container {
-                box-shadow: none;
-                border: 1px solid #ddd;
-            }
-            
-            .header-section {
-                page-break-inside: avoid;
-            }
-            
-            .profile-photo {
-                max-width: 120px;
-                max-height: 120px;
-            }
+            font-weight: bold;
+            margin-right: 8px;
         }
     </style>
 </head>
 <body>
     <div class="resume-container">
-        <div class="header-section">
+        <!-- Header Section -->
+        <div class="header clearfix">
             <div class="header-left">
                 <h1 class="name">{{ name }}</h1>
                 <div class="contact-info">
-                    <div class="contact-item">{{ email }}</div>
-                    <div class="contact-item">{{ phone }}</div>
-                    <div class="contact-item">{{ address }}</div>
+                    <div class="contact-line"><strong>Email:</strong> {{ email }}</div>
+                    <div class="contact-line"><strong>Phone:</strong> {{ phone }}</div>
+                    <div class="contact-line"><strong>Address:</strong> {{ address }}</div>
                 </div>
             </div>
-            {% if photo_url %}
-            <div class="header-right">
-                <img src="static/{{ photo_url }}" alt="Profile Photo" class="profile-photo">
-            </div>
-            {% endif %}
         </div>
         
-        <div class="divider-line"></div>
-        
-        <div class="main-content">
-            {% if education %}
-            <div class="section">
-                <h2 class="section-title">Education</h2>
-                {% for edu in education %}
-                <div class="education-item">
-                    <div class="item-header">
-                        <div>
+        <!-- Education Section -->
+        {% if education %}
+        <div class="section">
+            <h2 class="section-title">Education</h2>
+            {% for edu in education %}
+            <div class="item">
+                <table class="item-header">
+                    <tr>
+                        <td class="item-left">
                             <div class="item-title">{{ edu.degree }}</div>
                             <div class="item-subtitle">{{ edu.institution }}</div>
                             {% if edu.marks %}
                             <div class="grade">Grade: {{ edu.marks }}</div>
                             {% endif %}
-                        </div>
-                        <div class="item-date">{{ edu.start_date }} - {{ edu.end_date }}</div>
-                    </div>
-                    {% if edu.description %}
-                    <div class="item-description">{{ edu.description | replace('\n', '<br>') | safe }}</div>
-                    {% endif %}
-                </div>
-                {% endfor %}
+                        </td>
+                        <td class="item-right">
+                            <div class="item-date">{{ edu.start_date }} - {{ edu.end_date }}</div>
+                        </td>
+                    </tr>
+                </table>
+                {% if edu.description %}
+                <div class="item-description">{{ edu.description | replace('\n', '<br>') | safe }}</div>
+                {% endif %}
             </div>
-            {% endif %}
-            
-            {% if experience %}
-            <div class="section">
-                <h2 class="section-title">Work Experience</h2>
-                {% for exp in experience %}
-                <div class="experience-item">
-                    <div class="item-header">
-                        <div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <!-- Experience Section -->
+        {% if experience %}
+        <div class="section">
+            <h2 class="section-title">Work Experience</h2>
+            {% for exp in experience %}
+            <div class="item">
+                <table class="item-header">
+                    <tr>
+                        <td class="item-left">
                             <div class="item-title">{{ exp.job_title }}</div>
                             <div class="item-subtitle">{{ exp.company }}</div>
-                        </div>
-                        <div class="item-date">{{ exp.start_date }} - {{ exp.end_date }}</div>
-                    </div>
-                    {% if exp.description %}
-                    <div class="item-description">{{ exp.description | replace('\n', '<br>') | safe }}</div>
-                    {% endif %}
-                </div>
+                        </td>
+                        <td class="item-right">
+                            <div class="item-date">{{ exp.start_date }} - {{ exp.end_date }}</div>
+                        </td>
+                    </tr>
+                </table>
+                {% if exp.description %}
+                <div class="item-description">{{ exp.description | replace('\n', '<br>') | safe }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <!-- Skills Section -->
+        {% if skills %}
+        <div class="section">
+            <h2 class="section-title">Skills</h2>
+            <div class="skills-grid">
+                {% for skill in skills %}
+                <span class="skill-item">{{ skill }}</span>
                 {% endfor %}
             </div>
-            {% endif %}
-            
-            {% if skills %}
-            <div class="section">
-                <h2 class="section-title">Skills</h2>
-                <div class="skills-container">
-                    {% for skill in skills %}
-                    <div class="skill-item">{{ skill }}</div>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
-            
-            {% if certifications %}
-            <div class="section">
-                <h2 class="section-title">Certifications</h2>
-                <ul class="certifications-container">
-                    {% for cert in certifications %}
-                    <li class="certification-item">{{ cert }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% endif %}
         </div>
+        {% endif %}
+        
+        <!-- Certifications Section -->
+        {% if certifications %}
+        <div class="section">
+            <h2 class="section-title">Certifications</h2>
+            <ul class="cert-list">
+                {% for cert in certifications %}
+                <li class="cert-item">
+                    <span class="cert-bullet">●</span>{{ cert }}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
     </div>
 </body>
 </html>

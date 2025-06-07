@@ -8,7 +8,9 @@ from flask_mail import Mail, Message
 import flash
 import pdfplumber
 from docx import Document
+from jinja2 import Environment, FileSystemLoader
 import os
+from xhtml2pdf import pisa
 from io import BytesIO
 from markupsafe import Markup, escape
 import sqlite3
@@ -516,39 +518,38 @@ def generate_from_template():
         return redirect(url_for('login'))
     
     try:
-        from jinja2 import Environment, FileSystemLoader
-        from weasyprint import HTML
-        from io import BytesIO
-        
         # Prepare user data from session
         user_data = session['resume_data'].copy()
         user_data['current_date'] = datetime.now().strftime("%B %Y")
         template_id = session['selected_template']
-        
+
         # Handle photo URL for PDF generation
         if user_data.get('photo_url'):
-            # Create absolute path for PDF generation
             photo_path = os.path.join(app.root_path, 'static', user_data['photo_url'])
             if os.path.exists(photo_path):
-                # Convert to file URI format (works across platforms)
                 photo_path = os.path.abspath(photo_path).replace('\\', '/')
                 user_data['photo_absolute_path'] = f"file://{photo_path}"
                 print(f"Using photo path: {user_data['photo_absolute_path']}")
             else:
                 print(f"Photo file not found: {photo_path}")
-                user_data['photo_url'] = None  # Remove photo if file doesn't exist
-        
-        # Generate PDF with the selected template
+                user_data['photo_url'] = None
+
+        # Load template and render HTML
         env = Environment(loader=FileSystemLoader('templates'))
         template_file = f'cv_templates/resume_template{template_id}.html'
         template = env.get_template(template_file)
         html_out = template.render(user_data)
-        
+
+        # Generate PDF using xhtml2pdf
         pdf_file = BytesIO()
-        HTML(string=html_out, base_url=request.host_url).write_pdf(pdf_file)
+        pisa_status = pisa.CreatePDF(src=html_out, dest=pdf_file)
+        if pisa_status.err:
+            print("Error during PDF generation")
+            return redirect(url_for('template_selection'))
+
         pdf_file.seek(0)
-        
-        # Save to database if needed
+
+        # Save resume data to database
         try:
             with sqlite3.connect('users.db') as conn:
                 cursor = conn.cursor()
@@ -559,14 +560,15 @@ def generate_from_template():
                 conn.commit()
         except Exception as e:
             print(f"Error saving resume to database: {e}")
-        
+
+        # Send generated PDF to user
         return send_file(
             pdf_file,
             as_attachment=True,
             download_name=f"{user_data['name'].replace(' ', '_')}_resume.pdf",
             mimetype='application/pdf'
         )
-        
+
     except Exception as e:
         print(f"Error in generate_from_template: {e}")
         return redirect(url_for('template_selection'))
@@ -2033,3 +2035,6 @@ def view_candidate_profile(user_id):
     finally:
         conn_jobs.close()
         conn_users.close()
+
+if __name__ == "__main__":
+    app.run(debug=True)
