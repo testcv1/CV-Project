@@ -2036,5 +2036,3 @@ def view_candidate_profile(user_id):
         conn_jobs.close()
         conn_users.close()
 
-if __name__ == "__main__":
-    app.run(debug=True)
