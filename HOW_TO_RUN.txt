@@ -1,0 +1,4 @@
+ON TERMINAL
+cd CV_PROJECT
+venv\Scripts\activate
+python app.py
