@@ -6,3 +6,4 @@ pdfplumber
 python-docx
 requests
 xhtml2pdf
+gunicorn
