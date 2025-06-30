@@ -1,0 +1,52 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Database files (will be created at runtime)
+*.db
+*.sqlite3
+
+# Environment files
+.env
+.venv
+
+# Railway specific
+.vercel/
+railway.json
+buildpacks.txt
+
+# Documentation
+README.md
+RAILWAY_DEPLOYMENT.md
+HOW_TO_RUN.txt
+
+# Deployment scripts
+deploy_to_railway.sh 

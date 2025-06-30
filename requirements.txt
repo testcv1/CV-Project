@@ -9,3 +9,5 @@ xhtml2pdf
 gunicorn
 jinja2
 markupsafe
+pillow
+reportlab

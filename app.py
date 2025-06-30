@@ -5,7 +5,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import flask
 from flask import Flask, request, render_template, send_file, redirect, url_for, session, jsonify,send_from_directory,flash
 from flask_mail import Mail, Message
-import flash
 import pdfplumber
 from docx import Document
 from jinja2 import Environment, FileSystemLoader
