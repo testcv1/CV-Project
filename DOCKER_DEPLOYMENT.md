@@ -51,13 +51,14 @@ git push origin main
 ### Dockerfile Features:
 - **Python 3.9 slim image** - Lightweight and secure
 - **System dependencies** - All required libraries for PDF processing
-- **Multi-stage optimization** - Efficient layer caching
-- **Health checks** - Automatic monitoring
+- **Startup script** - Handles database initialization safely
+- **Health checks** - Automatic monitoring via `/health` endpoint
 - **Security** - Non-root user and minimal attack surface
 
 ### Key Benefits:
 - ✅ **Consistent environment** - Same setup everywhere
 - ✅ **No dependency conflicts** - Isolated environment
+- ✅ **Safe database initialization** - Prevents worker conflicts
 - ✅ **Easy scaling** - Railway can handle multiple instances
 - ✅ **Better debugging** - Local Docker matches production
 
@@ -65,7 +66,15 @@ git push origin main
 
 ### Common Issues:
 
-#### 1. Build Failures
+#### 1. Database Initialization Errors
+**Problem**: `sqlite3.OperationalError: table USERS already exists`
+
+**Solution**: The startup script (`start.sh`) now handles database initialization safely:
+- Creates databases before starting Gunicorn
+- Uses `CREATE TABLE IF NOT EXISTS` to prevent conflicts
+- Single worker initially to avoid race conditions
+
+#### 2. Build Failures
 ```bash
 # Check Docker build locally
 docker build -t cv-project . --no-cache
@@ -74,18 +83,15 @@ docker build -t cv-project . --no-cache
 docker logs <container_id>
 ```
 
-#### 2. Port Issues
+#### 3. Port Issues
 - Railway automatically sets `PORT` environment variable
 - Dockerfile exposes port 5000
-- Gunicorn binds to `0.0.0.0:$PORT`
+- Gunicorn binds to `0.0.0.0:5000`
 
-#### 3. Database Issues
-- SQLite databases are created at runtime
-- For production, consider PostgreSQL add-on in Railway
-
-#### 4. File Upload Issues
-- Upload directories are created in Docker
-- Consider cloud storage for production
+#### 4. Health Check Failures
+- Health check uses `/health` endpoint
+- 60-second start period allows for database initialization
+- Check logs if health checks fail
 
 ### Debug Commands:
 
@@ -100,7 +106,7 @@ docker logs <container_id>
 docker exec -it <container_id> /bin/bash
 
 # Check if app is running
-curl http://localhost:5000/
+curl http://localhost:5000/health
 ```
 
 ## 📁 File Structure
@@ -108,6 +114,7 @@ curl http://localhost:5000/
 ```
 your-project/
 ├── Dockerfile              # Docker configuration
+├── start.sh               # Startup script with DB init
 ├── docker-compose.yml      # Local development
 ├── .dockerignore          # Exclude files from build
 ├── railway.json           # Railway configuration
@@ -165,7 +172,8 @@ SECRET_KEY=your-secret-key
 
 ### Health Checks:
 - Automatic health checks every 30 seconds
-- Returns 200 OK for healthy app
+- Uses `/health` endpoint for monitoring
+- 60-second start period for database initialization
 - Railway will restart unhealthy containers
 
 ### Logs:
@@ -213,6 +221,8 @@ docker rm <container_id>
 
 - [ ] Docker builds successfully locally
 - [ ] App runs in Docker container
+- [ ] Database initialization works without conflicts
+- [ ] Health check endpoint responds correctly
 - [ ] All features work in Docker
 - [ ] Code pushed to GitHub
 - [ ] Railway deployment successful

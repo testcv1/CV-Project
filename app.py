@@ -23,6 +23,8 @@ import json
 from datetime import datetime
 from typing import Dict, List, Any
 import os
+import threading
+import time
 
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'  # Disable oneDNN warnings
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Reduce TensorFlow logging
@@ -36,6 +38,10 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp'}
 MAX_CONTENT_LENGTH = 2 * 1024 * 1024  # 2MB max file size
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
+
+# Database initialization lock
+db_init_lock = threading.Lock()
+db_initialized = False
 
 @app.errorhandler(413)
 def too_large(e):
@@ -68,146 +74,161 @@ def extract_text(file):
 #databases
 #################################################################################
 def create_users_database():
-    if not os.path.exists('users.db'):
+    """Create users database with proper locking"""
+    try:
         with sqlite3.connect('users.db') as conn:
-            conn.execute("""CREATE TABLE USERS
+            conn.execute("""CREATE TABLE IF NOT EXISTS USERS
             (ID INTEGER PRIMARY KEY AUTOINCREMENT,
             Name TEXT NOT NULL,
             Email TEXT NOT NULL UNIQUE,
             Password TEXT NOT NULL UNIQUE)""")
-create_users_database()
+            conn.commit()
+    except Exception as e:
+        print(f"Error creating users database: {e}")
 
 def init_jobs_db():
-    conn = sqlite3.connect('jobs.db')
-    create_users_database()
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS employers
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                 company_name TEXT NOT NULL,
-                 email TEXT UNIQUE NOT NULL,
-                 password TEXT NOT NULL,
-                 logo TEXT)''')
-    c.execute('''CREATE TABLE IF NOT EXISTS session_requests (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        consultant_id INTEGER NOT NULL,
-        user_id INTEGER NOT NULL,
-        name TEXT NOT NULL,
-        email TEXT NOT NULL,
-        phone TEXT,
-        purpose TEXT NOT NULL,
-        preferred_date TEXT,
-        preferred_time TEXT,
-        status TEXT DEFAULT 'pending',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY(consultant_id) REFERENCES consultants(id),
-        FOREIGN KEY(user_id) REFERENCES USERS(id)
-    )''')
-    c.execute('''CREATE TABLE IF NOT EXISTS jobs
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                 title TEXT NOT NULL,
-                 email TEXT NOT NULL,
-                 contact_number TEXT,
-                 description TEXT NOT NULL,
-                 requirements TEXT,
-                 location TEXT,  
-                 country TEXT,   
-                 city TEXT,    
-                 job_type TEXT NOT NULL,
-                 salary TEXT,
-                 salary_min INTEGER,  
-                 salary_max INTEGER,  
-                 salary_currency TEXT,  
-                 salary_period TEXT,    
-                 skills TEXT,
-                 posted_date TEXT NOT NULL,
-                 employer_id INTEGER NOT NULL,
-                 category TEXT,
-                 experience_level TEXT,
-                 FOREIGN KEY (employer_id) REFERENCES employers(id))''')
-    
-    c.execute('''CREATE TABLE IF NOT EXISTS consultants (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        email TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        specialization TEXT,
-        years_experience INTEGER,
-        bio TEXT,
-        linkedin TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )''')
-    c.execute('''CREATE TABLE IF NOT EXISTS applications (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    job_id INTEGER NOT NULL,
-    user_id INTEGER NOT NULL,
-    full_name TEXT NOT NULL,
-    email TEXT NOT NULL,
-    phone TEXT NOT NULL,
-    resume_path TEXT NOT NULL,
-    cover_letter TEXT,
-    linkedin_url TEXT,
-    portfolio_url TEXT,
-    application_date TEXT NOT NULL,
-    status TEXT DEFAULT 'Pending',
-    FOREIGN KEY (job_id) REFERENCES jobs(id),
-    FOREIGN KEY (user_id) REFERENCES users(id)
-);''')
-    c.execute('''CREATE TABLE IF NOT EXISTS blogs (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        consultant_id INTEGER NOT NULL,
-        title TEXT NOT NULL,
-        category TEXT NOT NULL,
-        image_url TEXT,
-        summary TEXT NOT NULL,
-        content TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY(consultant_id) REFERENCES consultants(id)
-    )''')
-    c.execute('''CREATE TABLE IF NOT EXISTS mcq_questions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        consultant_id INTEGER NOT NULL,
-        job_role TEXT NOT NULL,
-        experience_level TEXT NOT NULL,
-        question_text TEXT NOT NULL,
-        option1 TEXT NOT NULL,
-        option2 TEXT NOT NULL,
-        option3 TEXT NOT NULL,
-        option4 TEXT NOT NULL,
-        correct_option INTEGER NOT NULL,
-        explanation TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY(consultant_id) REFERENCES consultants(id)
-    )''')
-    
-    c.execute('''CREATE TABLE IF NOT EXISTS user_quiz_results (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        question_id INTEGER NOT NULL,
-        selected_option INTEGER NOT NULL,
-        is_correct BOOLEAN NOT NULL,
-        quiz_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY(user_id) REFERENCES USERS(id),
-        FOREIGN KEY(question_id) REFERENCES mcq_questions(id)
-    )''')
-    
-    c.execute('''CREATE TABLE IF NOT EXISTS consultant_chats (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        consultant_id INTEGER NOT NULL,
-        message TEXT NOT NULL,
-        sender_type TEXT NOT NULL,  -- 'user' or 'consultant'
-        sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY(user_id) REFERENCES USERS(id),
-        FOREIGN KEY(consultant_id) REFERENCES consultants(id)
-    )''')
-    conn.commit()
-    conn.close()
-
-# Add this after your init_jobs_db() function
-def update_db_schema():
-    conn = sqlite3.connect('jobs.db')
-    c = conn.cursor()
+    """Initialize jobs database with proper locking"""
     try:
+        conn = sqlite3.connect('jobs.db')
+        c = conn.cursor()
+        
+        # Create all tables with IF NOT EXISTS
+        c.execute('''CREATE TABLE IF NOT EXISTS employers
+                     (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                     company_name TEXT NOT NULL,
+                     email TEXT UNIQUE NOT NULL,
+                     password TEXT NOT NULL,
+                     logo TEXT)''')
+        
+        c.execute('''CREATE TABLE IF NOT EXISTS session_requests (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            consultant_id INTEGER NOT NULL,
+            user_id INTEGER NOT NULL,
+            name TEXT NOT NULL,
+            email TEXT NOT NULL,
+            phone TEXT,
+            purpose TEXT NOT NULL,
+            preferred_date TEXT,
+            preferred_time TEXT,
+            status TEXT DEFAULT 'pending',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(consultant_id) REFERENCES consultants(id),
+            FOREIGN KEY(user_id) REFERENCES USERS(id)
+        )''')
+        
+        c.execute('''CREATE TABLE IF NOT EXISTS jobs
+                     (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                     title TEXT NOT NULL,
+                     email TEXT NOT NULL,
+                     contact_number TEXT,
+                     description TEXT NOT NULL,
+                     requirements TEXT,
+                     location TEXT,  
+                     country TEXT,   
+                     city TEXT,    
+                     job_type TEXT NOT NULL,
+                     salary TEXT,
+                     salary_min INTEGER,  
+                     salary_max INTEGER,  
+                     salary_currency TEXT,  
+                     salary_period TEXT,    
+                     skills TEXT,
+                     posted_date TEXT NOT NULL,
+                     employer_id INTEGER NOT NULL,
+                     category TEXT,
+                     experience_level TEXT,
+                     FOREIGN KEY (employer_id) REFERENCES employers(id))''')
+        
+        c.execute('''CREATE TABLE IF NOT EXISTS consultants (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            specialization TEXT,
+            years_experience INTEGER,
+            bio TEXT,
+            linkedin TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )''')
+        
+        c.execute('''CREATE TABLE IF NOT EXISTS applications (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        job_id INTEGER NOT NULL,
+        user_id INTEGER NOT NULL,
+        full_name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        phone TEXT NOT NULL,
+        resume_path TEXT NOT NULL,
+        cover_letter TEXT,
+        linkedin_url TEXT,
+        portfolio_url TEXT,
+        application_date TEXT NOT NULL,
+        status TEXT DEFAULT 'Pending',
+        FOREIGN KEY (job_id) REFERENCES jobs(id),
+        FOREIGN KEY (user_id) REFERENCES users(id)
+    );''')
+        
+        c.execute('''CREATE TABLE IF NOT EXISTS blogs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            consultant_id INTEGER NOT NULL,
+            title TEXT NOT NULL,
+            category TEXT NOT NULL,
+            image_url TEXT,
+            summary TEXT NOT NULL,
+            content TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(consultant_id) REFERENCES consultants(id)
+        )''')
+        
+        c.execute('''CREATE TABLE IF NOT EXISTS mcq_questions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            consultant_id INTEGER NOT NULL,
+            job_role TEXT NOT NULL,
+            experience_level TEXT NOT NULL,
+            question_text TEXT NOT NULL,
+            option1 TEXT NOT NULL,
+            option2 TEXT NOT NULL,
+            option3 TEXT NOT NULL,
+            option4 TEXT NOT NULL,
+            correct_option INTEGER NOT NULL,
+            explanation TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(consultant_id) REFERENCES consultants(id)
+        )''')
+        
+        c.execute('''CREATE TABLE IF NOT EXISTS user_quiz_results (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            question_id INTEGER NOT NULL,
+            selected_option INTEGER NOT NULL,
+            is_correct BOOLEAN NOT NULL,
+            quiz_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(user_id) REFERENCES USERS(id),
+            FOREIGN KEY(question_id) REFERENCES mcq_questions(id)
+        )''')
+        
+        c.execute('''CREATE TABLE IF NOT EXISTS consultant_chats (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            consultant_id INTEGER NOT NULL,
+            message TEXT NOT NULL,
+            sender_type TEXT NOT NULL,  -- 'user' or 'consultant'
+            sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(user_id) REFERENCES USERS(id),
+            FOREIGN KEY(consultant_id) REFERENCES consultants(id)
+        )''')
+        
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"Error initializing jobs database: {e}")
+
+def update_db_schema():
+    """Update database schema with proper error handling"""
+    try:
+        conn = sqlite3.connect('jobs.db')
+        c = conn.cursor()
+        
         # Check if columns exist
         c.execute("PRAGMA table_info(employers)")
         columns = [col[1] for col in c.fetchall()]
@@ -222,14 +243,25 @@ def update_db_schema():
             c.execute("ALTER TABLE employers ADD COLUMN has_paid BOOLEAN DEFAULT 0")
             
         conn.commit()
+        conn.close()
     except Exception as e:
         print(f"Error updating schema: {e}")
-    finally:
-        conn.close()
 
-# Call this function after init_jobs_db()
-init_jobs_db()
-update_db_schema()
+def initialize_databases():
+    """Initialize all databases with proper locking"""
+    global db_initialized
+    
+    with db_init_lock:
+        if not db_initialized:
+            try:
+                print("Initializing databases...")
+                create_users_database()
+                init_jobs_db()
+                update_db_schema()
+                db_initialized = True
+                print("Database initialization complete")
+            except Exception as e:
+                print(f"Error during database initialization: {e}")
 
 # Helper function to get database connection
 def get_users_db():
@@ -254,10 +286,25 @@ def get_db():
 #######################################################################################
 @app.route('/')
 def index():
+    # Initialize databases on first request
+    initialize_databases()
     return redirect(url_for('login'))
+
+@app.route('/health')
+def health_check():
+    """Health check endpoint for Railway"""
+    try:
+        # Initialize databases if not done
+        initialize_databases()
+        return jsonify({"status": "healthy", "message": "Application is running"}), 200
+    except Exception as e:
+        return jsonify({"status": "unhealthy", "error": str(e)}), 500
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
+    # Initialize databases on first request
+    initialize_databases()
+    
     if request.method == 'POST':
         name = request.form.get('name')
         email = request.form.get('email')
