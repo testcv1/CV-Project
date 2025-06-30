@@ -7,3 +7,5 @@ python-docx
 requests
 xhtml2pdf
 gunicorn
+jinja2
+markupsafe
