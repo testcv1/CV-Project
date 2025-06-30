@@ -2,6 +2,10 @@
 
 echo "🚀 Starting CV Project Application..."
 
+# Get port from environment variable or default to 5000
+PORT=${PORT:-5000}
+echo "🌐 Using port: $PORT"
+
 # Wait a moment for any file system operations to complete
 sleep 2
 
@@ -161,5 +165,5 @@ except Exception as e:
     print(f'⚠️  Jobs database error: {e}')
 "
 
-echo "🎯 Starting Gunicorn server..."
-exec gunicorn --bind 0.0.0.0:5000 --workers 1 --timeout 120 --preload app:app 
+echo "🎯 Starting Gunicorn server on port $PORT..."
+exec gunicorn --bind 0.0.0.0:$PORT --workers 1 --timeout 120 --preload app:app 

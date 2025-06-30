@@ -8,6 +8,7 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV FLASK_ENV=production
+ENV PORT=5000
 
 # Install system dependencies
 RUN apt-get update \
@@ -31,6 +32,7 @@ RUN apt-get update \
         libxcb1-dev \
         pkg-config \
         curl \
+        netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better caching
@@ -46,18 +48,18 @@ COPY . .
 # Create necessary directories
 RUN mkdir -p static/images static/uploads
 
-# Make startup script executable
-RUN chmod +x start.sh
+# Make startup scripts executable
+RUN chmod +x start.sh start_simple.sh
 
 # Set permissions
 RUN chmod +x /app
 
-# Expose port
+# Expose port (will be overridden by Railway)
 EXPOSE 5000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:5000/health || exit 1
+# Health check with longer timeout
+HEALTHCHECK --interval=30s --timeout=30s --start-period=120s --retries=5 \
+    CMD curl -f http://localhost:${PORT:-5000}/health || exit 1
 
-# Run the startup script
-CMD ["./start.sh"] 
+# Run the simpler startup script
+CMD ["./start_simple.sh"] 
