@@ -102,6 +102,18 @@ Consider migrating to a proper database service:
 - Railway automatically sets the `PORT` environment variable
 - Your app should use `os.environ.get('PORT', 5000)`
 
+#### 4. Externally-Managed-Environment Error
+If you see this error during build:
+```
+error: externally-managed-environment
+× This environment is externally managed
+```
+
+**Solution**: The configuration files have been updated to handle this. If the error persists:
+1. Railway will automatically handle this with the current setup
+2. The build process uses `--user` flag for pip installations
+3. If issues continue, try removing `nixpacks.toml` and let Railway use default build
+
 ### Debug Commands
 ```bash
 # Check if your app runs locally
@@ -121,8 +133,8 @@ your-project/
 ├── requirements.txt       # Python dependencies
 ├── Procfile              # Railway start command
 ├── railway.json          # Railway configuration
-├── nixpacks.toml         # Build configuration
 ├── runtime.txt           # Python version
+├── buildpacks.txt        # Buildpack specification
 ├── static/               # Static files
 ├── templates/            # HTML templates
 └── README.md
